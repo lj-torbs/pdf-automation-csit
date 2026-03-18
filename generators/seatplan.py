@@ -86,31 +86,28 @@ def generate_seatplan(students, semester="", subject="", code_section="",
     
    
     header_coords = {
-        'semester': (125, 475),      # Term/Sem./S.Y.
-        'subject': (85, 116),         # Subject
-        'code_section': (253, 116),   # Code/Section
-        'time': (85, 98),            # Time
-        'room': (240, 98),           # Room
-        'college': (85, 80),         # College
-        'program': (250, 80),        # Program
-        'faculty_name': (500, 80),      # Instructor
+        'semester': (125, 475),     
+        'subject': (85, 116),         
+        'code_section': (253, 116),  
+        'time': (85, 98),            
+        'room': (240, 98),           
+        'college': (85, 80),         
+        'program': (250, 80),        
+        'faculty_name': (500, 80),      
     }
     
-    # Create PDF layer
     packet = BytesIO()
     template = PdfReader(template_path)
     page = template.pages[0]
 
-    # Get exact size of template
+    
     width = float(page.mediabox.width)
     height = float(page.mediabox.height)
 
     c = canvas.Canvas(packet, pagesize=(width, height))
     
-    # Set font
-    c.setFont("Helvetica", 13)  # Small font for seat plan
+    c.setFont("Helvetica", 13) 
     
-    # Add header information
     c.setFont("Helvetica", 10)
     
     if semester:
@@ -130,28 +127,22 @@ def generate_seatplan(students, semester="", subject="", code_section="",
     if faculty_name:
         c.drawString(header_coords['faculty_name'][0], header_coords['faculty_name'][1], f"{faculty_name}")
     
-    # Fill students in grid: left to right, bottom to top
-    c.setFont("Helvetica", 9)  # Even smaller font for grid
+    c.setFont("Helvetica", 9) 
     
     for i, student in enumerate(students):
-        # Calculate grid position
-        row_from_bottom = i // cols_per_row           # Which row from bottom (0 = bottom row)
-        col = i % cols_per_row                         # Which column (0-9, left to right)
+        row_from_bottom = i // cols_per_row           
+        col = i % cols_per_row                        
         
-        # Calculate Y position (from BOTTOM going UP)
         y = bottom_y + (row_from_bottom * row_height)
-        
-        # Get X position for this column
+    
         x = col_x_positions[col]
         
-        # Format name
         formatted_name = format_name_seatplan(student)
         
-        # Add number and name
         student_number = i + 1
         student_text = f"{formatted_name}"
         
-        max_width = 150  # adjust per column width
+        max_width = 150 
 
         while c.stringWidth(student_text, "Helvetica", 10) > max_width:
             student_text = student_text[:-1]
@@ -164,16 +155,14 @@ def generate_seatplan(students, semester="", subject="", code_section="",
     c.save()
     packet.seek(0)
     
-    # Merge with template
+
     overlay = PdfReader(packet)
     template = PdfReader(template_path)
     
-    # Use first page of template
     page = deepcopy(template.pages[0])
     page.merge_page(overlay.pages[0])
     writer.add_page(page)
     
-    # Save the final PDF
     output_file = "seatplan_complete.pdf"
     with open(output_file, "wb") as f:
         writer.write(f)
@@ -185,7 +174,6 @@ def generate_seatplan_simple(students):
     return generate_seatplan(students)
 
 if __name__ == "__main__":
-    # Test with sample data
     test_students = [f"Student {i}" for i in range(1, 31)]
     generate_seatplan(test_students, 
                      semester="1st Sem 2023-2024",
