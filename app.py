@@ -19,7 +19,7 @@ def merge_pdfs(pdf_paths, output_path):
     return output_path
 
 #streamlit run app.py
-st.title("LIFE SUPPORT PDF GENERATOR")
+st.title("LIFE SUPPORT PDF GENERATOR (v1)")
 st.markdown("Upload Excel files to generate the HOLY TRINITY DOCUMENTS")
 
 uploaded_files = st.file_uploader(
