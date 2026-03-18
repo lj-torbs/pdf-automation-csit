@@ -4,6 +4,20 @@ import pandas as pd
 from generators.logsheet import generate_logsheet_with_details
 from generators.seatplan import generate_seatplan
 from generators.syllabi import generate_syllabi
+from PyPDF2 import PdfMerger
+
+def merge_pdfs(pdf_paths, output_path):
+    merger = PdfMerger()
+
+    for path in pdf_paths:
+        if os.path.exists(path):
+            merger.append(path)
+
+    merger.write(output_path)
+    merger.close()
+
+    return output_path
+
 #streamlit run app.py
 st.title("LIFE SUPPORT PDF GENERATOR")
 st.markdown("Upload Excel files to generate the HOLY TRINITY DOCUMENTS")
@@ -148,7 +162,7 @@ if uploaded_files:
             else:
                 with st.spinner("Generating PDFs..."):
                     try:
-                        generated_files = []
+                        final_outputs = []
 
                         for i, data in enumerate(all_data):
                             students = data["students"]
@@ -157,6 +171,8 @@ if uploaded_files:
 
                             folder_path = os.path.join("outputs", filename)
                             os.makedirs(folder_path, exist_ok=True)
+
+                            pdf_parts = []
 
                             if gen_logsheet:
                                 st.info(f"Generating Logsheet for {filename}...")
@@ -170,52 +186,61 @@ if uploaded_files:
 
                                 new_path = os.path.join(folder_path, "logsheet.pdf")
                                 os.replace(logsheet_file, new_path)
-                                generated_files.append(("Logsheet", new_path))
+                                pdf_parts.append(new_path)
 
-                            if gen_seatplan:
-                                st.info(f"Generating Seat Plan for {filename}...")
-                                seatplan_file = generate_seatplan(
-                                    students,
-                                    semester,
-                                    settings["subject_code"],
-                                    settings["code_section"],
-                                    settings["time"],
-                                    settings["room"],
-                                    settings["college"],
-                                    settings["program"],
-                                    faculty_name
-                                )
+                                # SEATPLAN
+                                if gen_seatplan:
+                                    st.info(f"Generating Seat Plan for {filename}...")
+                                    seatplan_file = generate_seatplan(
+                                        students,
+                                        semester,
+                                        settings["subject_code"],
+                                        settings["code_section"],
+                                        settings["time"],
+                                        settings["room"],
+                                        settings["college"],
+                                        settings["program"],
+                                        faculty_name
+                                    )
 
-                                new_path = os.path.join(folder_path, "seatplan.pdf")
-                                os.replace(seatplan_file, new_path)
-                                generated_files.append(("Seat Plan", new_path))
+                                    new_path = os.path.join(folder_path, "seatplan.pdf")
+                                    os.replace(seatplan_file, new_path)
+                                    pdf_parts.append(new_path)
 
-                            if gen_syllabi:
-                                st.info(f"Generating Syllabi for {filename}...")
-                                syllabi_file = generate_syllabi(
-                                    students,
-                                    teacher=faculty_name,
-                                    subject=settings["subject_code"],
-                                    code=settings["code_section"],
-                                    term=settings["time"],
-                                    semester=semester
-                                )
+                                # SYLLABI
+                                if gen_syllabi:
+                                    st.info(f"Generating Syllabi for {filename}...")
+                                    syllabi_file = generate_syllabi(
+                                        students,
+                                        teacher=faculty_name,
+                                        subject=settings["subject_code"],
+                                        code=settings["code_section"],
+                                        term=settings["time"],
+                                        semester=semester
+                                    )
 
-                                new_path = os.path.join(folder_path, "syllabi.pdf")
-                                os.replace(syllabi_file, new_path)
-                                generated_files.append(("Syllabi", new_path))
+                                    new_path = os.path.join(folder_path, "syllabi.pdf")
+                                    os.replace(syllabi_file, new_path)
+                                    pdf_parts.append(new_path)
+
+                            # 🔥 MERGE INTO ONE PDF
+                                merged_path = os.path.join(folder_path, f"{filename}_COMPLETE.pdf")
+
+                                merge_pdfs(pdf_parts, merged_path)
+
+                                final_outputs.append((filename, merged_path))
 
                         st.success("All PDFs generated successfully")
 
-                        for idx, (doc_name, file_path) in enumerate(generated_files):
+                        for idx, (class_name, file_path) in enumerate(final_outputs):
                             with open(file_path, "rb") as f:
                                 st.download_button(
-                                    label=f"Download {doc_name} ({os.path.basename(file_path)})",
-                                    data=f,
+                                    label=f"Download {class_name} Complete PDF",
+                                    data=f.read(),
                                     file_name=os.path.basename(file_path),
                                     mime="application/pdf",
                                     use_container_width=True,
-                                    key=f"{doc_name}_{idx}"
+                                    key=f"{class_name}_{idx}"
                                 )
 
                     except Exception as e:
@@ -223,4 +248,4 @@ if uploaded_files:
                         st.exception(e)
 
 else:
-    st.info("Please upload Excel files to begin")
+    st.info("Please upload Excel files to begin")   
