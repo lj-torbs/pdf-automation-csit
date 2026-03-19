@@ -5,6 +5,24 @@ from generators.logsheet import generate_logsheet_with_details
 from generators.seatplan import generate_seatplan
 from generators.syllabi import generate_syllabi
 from PyPDF2 import PdfMerger
+from datetime import datetime
+
+current_year = datetime.now().year
+current_month = datetime.now().month
+
+if current_month < 6:
+    start_year = current_year - 1
+else:
+    start_year = current_year
+
+school_years = [
+    f"{start_year+i}-{start_year+i+1}"
+    for i in range(0, 5) 
+]
+
+end_year = start_year + 1
+
+default_sy = f"{start_year}-{end_year}"
 
 def merge_pdfs(pdf_paths, output_path):
     merger = PdfMerger()
@@ -110,13 +128,33 @@ if uploaded_files:
 
         st.subheader("Header Information (Optional)")
 
-        col1, col2 = st.columns(2)
+        col1, col2, col3= st.columns(3)
 
         with col1:
             faculty_name = st.text_input("Faculty Name")
 
         with col2:
-            semester = st.text_input("Sem/Term/S.Y.")
+            col_sem, col_term, col_sy = st.columns(3)
+            with col_sem:
+                semester = st.selectbox(
+                    "Semester",
+                    ["1st", "2nd", "Summer"],
+                    index=0
+                )
+
+            with col_term:
+                term = st.selectbox(
+                    "Term",
+                    ["1st", "2nd",],
+                    index=0
+                )
+
+            with col_sy:
+                school_year = st.selectbox(
+                    "School Year",school_years, index=0
+                )
+        with col3:
+            program_head = st.text_input("Program Head")
 
         st.subheader("Per Class Settings")
 

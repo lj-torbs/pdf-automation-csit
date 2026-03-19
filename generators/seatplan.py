@@ -64,7 +64,7 @@ def generate_seatplan(students, semester="", subject="", code_section="",
     
     col_x_positions = [ 
         46,    # Column 1
-        115,   # Column 2
+        116,   # Column 2
         193,   # Column 3
         262,   # Column 4
         332,   # Column 5
@@ -74,17 +74,31 @@ def generate_seatplan(students, semester="", subject="", code_section="",
         675,   # Column 9
         745,   # Column 10
     ]
-    
-    bottom_y = 180        
-    top_y = 368          
+        
+
+    if total_students <= 20:
+        bottom_y = 180
+        top_y = 248
+        row_height = 24
+
+    elif total_students <= 40:
+        bottom_y = 180
+        top_y = 368
+        if rows_needed > 1:
+            row_height = (top_y - bottom_y) / (rows_needed - 1)
+        else:
+            row_height = 0
+
+    else:
+        bottom_y = 180
+        top_y = 430 
+        row_height = 22      
     
     if rows_needed > 1:
         row_height = (top_y - bottom_y) / (rows_needed - 1)
     else:
         row_height = 0
     
-    
-   
     header_coords = {
         'semester': (125, 475),     
         'subject': (85, 116),         
