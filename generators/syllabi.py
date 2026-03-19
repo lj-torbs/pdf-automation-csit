@@ -7,7 +7,7 @@ import os
 import pandas as pd
 
 
-def generate_syllabi(students, teacher="", subject="", code="", term="", semester=""):
+def generate_syllabi(students, teacher="", subject="", code="", term="", semester="", branch=""):
     writer = PdfWriter()
 
     template_path = "syllabicontrol.pdf" 
@@ -24,9 +24,13 @@ def generate_syllabi(students, teacher="", subject="", code="", term="", semeste
     # Header positions (adjust if needed)
     teacher_x, teacher_y = 120, 705
     subject_x, subject_y = 405, 705
-    code_x, code_y = 110, 680
-    term_x, term_y = 240, 680
-    semester_x, semester_y = 405, 680
+    code_x, code_y = 110, 677
+    term_x, term_y = 240, 677
+    semester_x, semester_y = 405, 677
+    if branch == "Main":
+        branchx, branchy = 262, 765
+    else:
+        branchx, branchy = 319, 765
 
     total_pages = (len(students) + rows_per_page - 1) // rows_per_page
 
@@ -50,6 +54,8 @@ def generate_syllabi(students, teacher="", subject="", code="", term="", semeste
             c.drawString(term_x, term_y, term)
         if semester:
             c.drawString(semester_x, semester_y, semester)
+        if branch:
+            c.drawString(branchx, branchy, "✔                Tagum")
 
         # STUDENT NAMES (FULL, NO FORMAT)
         c.setFont("Helvetica-Bold", 10)

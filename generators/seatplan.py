@@ -44,7 +44,7 @@ def format_name_seatplan(full_name):
         return f"{surname},\n{firstname}"
 
 def generate_seatplan(students, semester="", subject="", code_section="", 
-                      time="", room="", college="", program="", faculty_name=""):
+                      time="", room="", college="", program="", faculty_name="", program_head="", branch=""):
     """
     Generate seat plan PDF with student names in a 10x? grid
     Fills left to right, bottom to top
@@ -99,6 +99,11 @@ def generate_seatplan(students, semester="", subject="", code_section="",
     else:
         row_height = 0
     
+    if branch == "Main":
+        branch_coords = (150, 532)
+    else:
+        branch_coords = (205, 532)
+
     header_coords = {
         'semester': (125, 475),     
         'subject': (85, 116),         
@@ -107,7 +112,8 @@ def generate_seatplan(students, semester="", subject="", code_section="",
         'room': (240, 98),           
         'college': (85, 80),         
         'program': (250, 80),        
-        'faculty_name': (500, 80),      
+        'faculty_name': (500, 80),
+        'branch': branch_coords
     }
     
     packet = BytesIO()
@@ -140,6 +146,8 @@ def generate_seatplan(students, semester="", subject="", code_section="",
         c.drawString(header_coords['program'][0], header_coords['program'][1], f"{program}")
     if faculty_name:
         c.drawString(header_coords['faculty_name'][0], header_coords['faculty_name'][1], f"{faculty_name}")
+    if branch:
+        c.drawString(header_coords['branch'][0], header_coords['branch'][1], "✔                    Tagum")
     
     c.setFont("Helvetica", 9) 
     
