@@ -236,8 +236,8 @@ load_css()
 
 st.markdown("""
 <div class="main-header">
-    <h1>LIFE SUPPORT PDF GENERATOR v1.0</h1>
-    <p>Trinity Document Generator for UM (EXAM LOGSHEET, SEATPLAN, SYLLABI CONTROL)</p>
+    <h1>Syllabus, Exam & Seatplan Generator (SES Generator)</h1>
+    <p>Made for Don Benjamin</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -264,8 +264,17 @@ tab1, tab2, tab3 = st.tabs(["📁 Upload Files", "⚙️ Configuration", "📥 D
 
 with tab1:
     #st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown("""
+<style>
+.card-header {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+</style>
+""", unsafe_allow_html=True)
+
     st.markdown('<p class="card-header">Upload Class Lists</p>', unsafe_allow_html=True)
-    
     uploaded_files = st.file_uploader(
         "Drag and drop your Excel files here",
         type=['xlsx', 'xls'],
@@ -382,15 +391,38 @@ if uploaded_files:
                 """, unsafe_allow_html=True)
             
             # Preview section
-            st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown('<p class="card-header">👥 Class Lists Preview</p>', unsafe_allow_html=True)
             
+            st.markdown("""
+<style>
+.fake-button {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background-color: var(--secondary-background-color);
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.fake-button:hover {
+    opacity: 0.85;
+    transform: scale(1.03);
+}
+</style>
+""", unsafe_allow_html=True)
+            
             for data in all_data:
-                with st.expander(f"{data['filename']} ({len(data['students'])} students)"):
+                with st.expander(f"Preview classlist for {data['filename']}"):
+                
+
                     preview_df = pd.DataFrame({
                         "#": range(1, len(data["students"]) + 1),
                         "Student Name": data["students"]
                     })
+
                     st.dataframe(
                         preview_df,
                         use_container_width=True,
@@ -400,30 +432,29 @@ if uploaded_files:
                             "Student Name": st.column_config.TextColumn(width="large")
                         }
                     )
+
             st.markdown('</div>', unsafe_allow_html=True)
         
         with tab2:
             # Configuration section
-            st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown('<p class="card-header">Document Selection</p>', unsafe_allow_html=True)
             
-            select_all = st.checkbox("Select All Documents", value=False)
             
-            col_a, col_b, col_c = st.columns(3)
+            col_a, col_b, col_c, col_d = st.columns(4)
             
             with col_a:
-                gen_logsheet = st.checkbox("Logsheet", value=select_all)
-            
+                select_all = st.checkbox("Select All Documents", value=False)            
             with col_b:
                 gen_seatplan = st.checkbox("Seat Plan", value=select_all)
             
             with col_c:
                 gen_syllabi = st.checkbox("Syllabi", value=select_all)
-            
+            with col_d:
+                gen_logsheet = st.checkbox("Logsheet", value=select_all)
+
             st.markdown('</div>', unsafe_allow_html=True)
             
             # Header Information
-            st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown('<p class="card-header">👤 Header Information</p>', unsafe_allow_html=True)
             
             col1, col2 = st.columns(2)
@@ -493,13 +524,12 @@ if uploaded_files:
             st.markdown('</div>', unsafe_allow_html=True)
             
             # Per Class Settings
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<p class="card-header">⚙️ Per Class Settings</p>', unsafe_allow_html=True)
+            st.markdown('<p class="card-header">⚙️ General Setup</p>', unsafe_allow_html=True)
             
             class_settings = []
             
             for i, data in enumerate(all_data):
-                with st.expander(f"⚙️ Settings for {data['filename']}"):
+                with st.expander(f"⚙️ Setup form for {data['filename']}"):
                     col1, col2, col3 = st.columns(3)
                     
                     with col1:
@@ -533,7 +563,7 @@ if uploaded_files:
                                 key=f"end_time_{i}"
                             )
 
-                        time = f"{start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}"
+                        time_range = f"{start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}"
                     
                     col4, col5, col6 = st.columns(3)
                     
@@ -564,7 +594,7 @@ if uploaded_files:
                     class_settings.append({
                         "subject_code": subject_code,
                         "code_section": code_section,
-                        "time": time,
+                        "time": time_range,
                         "room": room,
                         "college": college,
                         "program": program

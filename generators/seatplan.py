@@ -80,6 +80,16 @@ def generate_seatplan(students, semester="", subject="", code_section="",
         bottom_y = 180
         top_y = 248
         row_height = 24
+    
+    elif total_students <= 10:
+        bottom_y = 180
+        top_y = 220
+        row_height = 24
+
+    elif total_students <= 30:
+        bottom_y = 180
+        top_y = 320
+        row_height = 24
 
     elif total_students <= 40:
         bottom_y = 180
